@@ -1,6 +1,18 @@
 from django.contrib.auth.mixins import LoginRequiredMixin as DjangoLoginRequiredMixin
 from django.urls import reverse_lazy
+from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView
+
+from crud_app.models import Profile
 
 
 class LoginRequiredMixin(DjangoLoginRequiredMixin):
     login_url = reverse_lazy("social:begin", args=["github"])
+
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = "index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["profile"] = Profile.objects.filter(user=self.request.user).first()
+        return context
