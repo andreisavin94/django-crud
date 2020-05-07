@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin as DjangoLoginRequired
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView
 
+from crud_app.forms import ProfileForm
 from crud_app.models import Profile
 
 
@@ -16,3 +17,12 @@ class IndexView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["profile"] = Profile.objects.filter(user=self.request.user).first()
         return context
+
+
+class CreateProfileView(LoginRequiredMixin, CreateView):
+    template_name = "create_profile.html"
+    form_class = ProfileForm
+    success_url = reverse_lazy("index_view")
+
+    def get_form_kwargs(self):
+        return {**super().get_form_kwargs(), "user": self.request.user}

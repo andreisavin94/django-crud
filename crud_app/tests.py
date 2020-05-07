@@ -41,3 +41,41 @@ class TestIndexView(LoggedInUserMixin, TestCase):
         response = self.client.get(self.url)
 
         self.assertContains(response, "You haven't created a profile yet")
+
+
+class TestCreateProfile(LoggedInUserMixin, TestCase):
+    def setUp(self):
+        self.url = reverse("create_profile_view")
+        self.user = User.objects.create()
+        self.client.force_login(user=self.user)
+        self.form_data = {
+            "name": "John Doe",
+            "phone": "123456",
+            "address": "King St",
+        }
+
+    def test_create_profile(self):
+        response = self.client.post(self.url, data=self.form_data)
+
+        self.assertRedirects(response, reverse("index_view"))
+        self.assertEqual(Profile.objects.filter(user=self.user).count(), 1)
+        created_profile = Profile.objects.get(user=self.user)
+        self.assertEqual(created_profile.name, self.form_data["name"])
+        self.assertEqual(created_profile.phone, self.form_data["phone"])
+        self.assertEqual(created_profile.address, self.form_data["address"])
+
+    def test_create_profile_with_name_missing(self):
+        self.form_data.pop("name")
+
+        response = self.client.post(self.url, data=self.form_data)
+
+        self.assertEqual(Profile.objects.count(), 0)
+        self.assertContains(response, "This field is required")
+
+    def test_create_profile_with_name_blank(self):
+        self.form_data["name"] = ""
+
+        response = self.client.post(self.url, data=self.form_data)
+
+        self.assertEqual(Profile.objects.count(), 0)
+        self.assertContains(response, "This field is required")

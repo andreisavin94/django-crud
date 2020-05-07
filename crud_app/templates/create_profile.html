@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="text-center">Create a new profile</h1>
+  <p class="text-center">Please fill all the fields below:</p>
+  <form method="POST">
+  {% csrf_token %}
+    <div class="row justify-content-center">
+      <div class="col-lg-4 border rounded border-info">
+        <table class="table">
+          {{ form.as_table }}
+        </table>
+      </div>
+    </div>
+    <div class="row justify-content-center pt-3">
+      <div class="col-lg-4 text-center">
+        <a href="{% url 'index_view' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-success">Create</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}
