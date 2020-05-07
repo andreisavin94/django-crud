@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="text-center">Welcome</h1>
+  <div class="row justify-content-center pt-5">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header text-center">
+          <h3>Your profile</h3>
+        </div>
+        <div class="card-body">
+          {% if profile %}
+          <table class="table">
+            <tr>
+              <td>Name:</td>
+              <td>{{ profile.name }}</td>
+            </tr>
+            <tr>
+              <td>Phone:</td>
+              <td>{{ profile.phone }}</td>
+            </tr>
+            <tr>
+              <td>Address:</td>
+              <td>{{ profile.address }}</td>
+            </tr>
+          </table>
+          {% else %}
+            <p class="text-center">You haven't created a profile yet. Click <a href="{% url 'create_profile_view' %}">here</a> to create it.</p>
+          {% endif %}
+        </div>
+        {% if profile %}
+          <div class="card-footer text-center">
+            <a href="{% url "update_profile_view" profile.pk %}" class="btn btn-warning">Update</a>
+            <a href="{% url "delete_profile_view" profile.pk %}" class="btn btn-danger">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
