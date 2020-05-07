@@ -4,6 +4,7 @@ from crud_app.views import (
     IndexView,
     CreateProfileView,
     UpdateProfileView,
+    DeleteProfileView,
 )
 
 urlpatterns = [
@@ -13,5 +14,10 @@ urlpatterns = [
         "profile/<int:pk>/update/",
         UpdateProfileView.as_view(),
         name="update_profile_view",
+    ),
+    path(
+        "profile/<int:pk>/delete/",
+        DeleteProfileView.as_view(),
+        name="delete_profile_view",
     ),
 ]

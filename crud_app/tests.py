@@ -140,3 +140,37 @@ class TestUpdateProfile(LoggedInUserMixin, TestCase):
         response = self.client.post(url, data=self.form_data)
 
         self.assertEqual(response.status_code, 404)
+
+
+class TestDeleteProfile(LoggedInUserMixin, TestCase):
+    def setUp(self):
+        self.user = User.objects.create()
+        profile = Profile.objects.create(
+            user=self.user, name="John Doe", phone="12345", address="Nowhere"
+        )
+        self.url = reverse("delete_profile_view", args=[profile.pk])
+        self.client.force_login(user=self.user)
+
+    def test_delete(self):
+        response = self.client.post(self.url, data={})
+
+        self.assertRedirects(response, reverse("index_view"))
+        self.assertEqual(Profile.objects.count(), 0)
+
+    def test_delete_other_profile(self):
+        user_two = User.objects.create(username="Two")
+        profile_two = Profile.objects.create(user=user_two, name="Foo Bar")
+        url = reverse("delete_profile_view", args=[profile_two.pk])
+
+        response = self.client.post(url, data={})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Profile.objects.count(), 2)
+
+    def test_delete_invalid_profile(self):
+        url = reverse("delete_profile_view", args=[999])
+
+        response = self.client.post(url, data={})
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(Profile.objects.count(), 1)

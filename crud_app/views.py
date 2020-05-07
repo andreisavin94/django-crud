@@ -39,3 +39,13 @@ class UpdateProfileView(LoginRequiredMixin, UpdateView):
 
     def get_form_kwargs(self):
         return {**super().get_form_kwargs(), "user": self.request.user}
+
+
+class DeleteProfileView(LoginRequiredMixin, DeleteView):
+    model = Profile
+    template_name = "delete_profile.html"
+    form_class = ProfileForm
+    success_url = reverse_lazy("index_view")
+
+    def get_queryset(self):
+        return Profile.objects.filter(user=self.request.user)

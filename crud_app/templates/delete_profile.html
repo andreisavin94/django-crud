@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="text-center">Delete profile</h1>
+  <form method="POST">
+  {% csrf_token %}
+    <div class="row justify-content-center pt-5">
+      <div class="col-lg-4 border rounded border-info text-center">
+        <p>Are you sure? This operation cannot be undone.</p>
+      </div>
+    </div>
+    <div class="row justify-content-center pt-3">
+      <div class="col-lg-4 text-center">
+        <a href="{% url 'index_view' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </form>
+{% endblock %}
