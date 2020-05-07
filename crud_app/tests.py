@@ -79,3 +79,64 @@ class TestCreateProfile(LoggedInUserMixin, TestCase):
 
         self.assertEqual(Profile.objects.count(), 0)
         self.assertContains(response, "This field is required")
+
+
+class TestUpdateProfile(LoggedInUserMixin, TestCase):
+    def setUp(self):
+        self.user = User.objects.create()
+        profile = Profile.objects.create(
+            user=self.user, name="John Doe", phone="12345", address="Nowhere"
+        )
+        self.url = reverse("update_profile_view", args=[profile.pk])
+        self.client.force_login(user=self.user)
+        self.form_data = {
+            "name": "Michael Doe",
+            "phone": "98765",
+            "address": "Somewhere",
+        }
+
+    def test_update(self):
+        response = self.client.post(self.url, data=self.form_data)
+
+        self.assertRedirects(response, reverse("index_view"))
+        self.assertEqual(Profile.objects.filter(user=self.user).count(), 1)
+        profile = Profile.objects.first()
+        self.assertEqual(profile.name, self.form_data["name"])
+        self.assertEqual(profile.phone, self.form_data["phone"])
+        self.assertEqual(profile.address, self.form_data["address"])
+
+    def test_update_with_missing_required_field(self):
+        self.form_data.pop("name")
+
+        response = self.client.post(self.url, data=self.form_data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required")
+        profile = Profile.objects.first()
+        self.assertEqual(profile.name, "John Doe")
+
+    def test_update_with_invalid_field(self):
+        self.form_data["foo"] = "bar"
+
+        self.client.post(self.url, data=self.form_data)
+
+        profile = Profile.objects.first()
+        self.assertEqual(profile.name, self.form_data["name"])
+        self.assertEqual(profile.phone, self.form_data["phone"])
+        self.assertEqual(profile.address, self.form_data["address"])
+
+    def test_update_other_profile(self):
+        user_two = User.objects.create(username="Two")
+        profile_two = Profile.objects.create(user=user_two, name="Foo Bar")
+        url = reverse("update_profile_view", args=[profile_two.pk])
+
+        response = self.client.post(url, data=self.form_data)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_invalid_profile(self):
+        url = reverse("update_profile_view", args=[999])
+
+        response = self.client.post(url, data=self.form_data)
+
+        self.assertEqual(response.status_code, 404)

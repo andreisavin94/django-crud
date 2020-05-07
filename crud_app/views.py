@@ -26,3 +26,16 @@ class CreateProfileView(LoginRequiredMixin, CreateView):
 
     def get_form_kwargs(self):
         return {**super().get_form_kwargs(), "user": self.request.user}
+
+
+class UpdateProfileView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    template_name = "edit_profile.html"
+    form_class = ProfileForm
+    success_url = reverse_lazy("index_view")
+
+    def get_queryset(self):
+        return Profile.objects.filter(user=self.request.user)
+
+    def get_form_kwargs(self):
+        return {**super().get_form_kwargs(), "user": self.request.user}
